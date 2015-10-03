@@ -29,6 +29,26 @@ void Add(QTYPE *Q, Byte b);
 Byte Del(QTYPE *Q);
 void ViewContent(QTYPE *Q);
 
+typedef struct Frame
+{
+	int number;
+	char *message;
+	char *checksum;
+	int length;
+	
+} Frame;
+
+void CreateFrame (Frame *F);
+void SetNumber (Frame *F, int i);
+void SetMessage (Frame *F, char* msg);
+void SetChecksum (Frame *F);
+void SetLength (Frame *F, int l);
+int GetNumber (Frame F);
+char* GetMessage (Frame F);
+char* GetChecksum (Frame F);
+int GetLength (Frame F);
+char* CompileFrame (Frame F);
+
 #endif
 
 
