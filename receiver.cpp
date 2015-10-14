@@ -31,26 +31,31 @@ unsigned int addrLen = sizeof(targetAddr);	/* length of address */
 int targetPort;
 int recvLen; /* # byte receive */
 
-Byte buf[1]; /* buffer of buffer */
-Byte consumed[1];
+char* buf; /* buffer of buffer */
+char res[MaxResponseLength];
+char* consumed;
 
 char ip[INET_ADDRSTRLEN];
 
-static QTYPE buffer; /* the buffer */
+QTYPE buffer(RXQSIZE); /* the buffer */
 int x = 1; /* 0 = XOFF, 1 = XON */
 int receivedByte = 0;
 int consumedByte = 0;
 
 /* Functions declaration */
-static Byte *rcvchar(int sockfd, QTYPE* queue);
-static Byte *q_get(int sockfd, QTYPE* queue);
+static char* rcvchar(int sockfd, QTYPE *queue);
+static char* q_get(int sockfd, QTYPE *queue);
 void* threadParent(void *arg);
 void* threadChild(void *arg);
 
-int main(int argc, char *argv[]) {
-	Byte c;
+/* Sliding Window Protocol */
+Response R;
 
-	CreateQueue(&buffer, RXQSIZE);
+int main(int argc, char *argv[]) {
+	char* c;
+
+	buf = (char *) malloc(MaxFrameLength * sizeof(char));
+	consumed = (char *) malloc(MaxFrameLength * sizeof(char));
 
 	/* Creating Socket */
 	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -101,41 +106,56 @@ int main(int argc, char *argv[]) {
 
 void* threadParent(void *arg) {
 	/* Parent Thread */
-	Byte *chck;
+	char* chck;
 	
 	/* Ketika belum diterima EOF, 
 	   teruskan listening untuk penerimaan byte */
 	while (parentExit == 0) {	
 		chck = rcvchar(sockfd, &buffer);
 		if ( chck != NULL ) {
-			if ( *chck != 26 ) {
-				receivedByte++;
-				printf("Menerima byte ke-%d.\n", receivedByte);
-			} else {
+			//if ( *chck != 26 ) {
+				printf("Menerima Frame\n");
+			/*} else {
 				printf("EOF diterima\n");
 				parentExit = 1;
-			}
+			}*/
 		}
 	}
 
-	char state[1];
+	/*char state[1];
 	sprintf(state, "%c",(char) XOFF);
 	if (sendto(sockfd, state, 1, 0, (struct sockaddr *)&targetAddr, addrLen) == -1) {
 		perror("sendto");
-	}
+	}*/
 	return NULL;
 }
 
 void* threadChild(void *arg) {
 	/* Child Thread */
-	Byte *chck;
+	char* chck;
 
 	/* Sampai program diakhiri, konsumsi terus byte yang ada pada buffer*/
-	while ((parentExit == 0) || (consumedByte != receivedByte)) {	
+	while (true) {	
 		chck = q_get(sockfd, &buffer);
 		if ( chck != NULL ) {
-			consumedByte++;
-			printf("Mengkonsumsi byte ke-%d: '%s'\n", consumedByte, chck);
+			Frame F;
+			F.GetDecompiled(chck);
+			printf("Mengkonsumsi [ %s ] Mencoba mengirim ACK\n", (F.GetMessage()).c_str());
+
+			R.SetNumber(F.GetNumber());
+			R.SetChecksum(F.GetChecksum());
+
+			// Randomizing ACK and NAK
+			if ( (rand() % 5) < 3 ) {
+				R.SetType(ACK);
+			} else {
+				R.SetType(NAK);
+			}
+
+			sprintf(res, "%s", (R.GetCompiled()).c_str());
+			if (sendto(sockfd, res, MaxResponseLength, 0, (struct sockaddr *)&targetAddr, addrLen) == -1) {
+				perror("sendto");
+			}
 		}
 		usleep(DELAY * 1000);
 		
@@ -144,14 +164,14 @@ void* threadChild(void *arg) {
 	return NULL;
 }
 
-static Byte *rcvchar(int sockfd, QTYPE* queue) {
+static char* rcvchar(int sockfd, QTYPE *queue) {
 	/*
 	Read a character from socket and put it to the receive buffer.
 	If the number of characters in the receive buffer is above certain
 	level, then send XOFF and set a flag.
 	Return a buffer value.
 	*/
-	int emptySpace = EmptySpace(*queue);
+	/*int emptySpace = (*queue).EmptySpace();
 
 	if (emptySpace <= minUpperLimit) {
 		char state[1];
@@ -168,24 +188,24 @@ static Byte *rcvchar(int sockfd, QTYPE* queue) {
 		
 		return NULL;
 
-	} else {
+	} else {*/
 
-		recvLen = recvfrom(sockfd, buf, 1, 0, (struct sockaddr *)&targetAddr, &addrLen);
+		recvLen = recvfrom(sockfd, buf, MaxFrameLength, 0, (struct sockaddr *)&targetAddr, &addrLen);
 
-		if ( buf[0] != 26 ) {
-			Add(queue, buf[0]);
-		}	
+		//if ( buf[0] != 26 ) {
+			(*queue).Add(buf);
+		//}	
 
 		return buf;
-	}
+	/*}*/
 
 }
 
 /* q_get returns a pointer to the buffer where data is read or NULL if
  * buffer is empty.
  */
-static Byte *q_get(int sockfd, QTYPE *queue) {
-	int emptySpace = EmptySpace(*queue);
+static char* q_get(int sockfd, QTYPE *queue) {
+	int emptySpace = (*queue).EmptySpace();
 
 	if (emptySpace < RXQSIZE) {
 		/*
@@ -194,7 +214,8 @@ static Byte *q_get(int sockfd, QTYPE *queue) {
 		level, then send XON.
 		Increment front index and check for wraparound.
 		*/
-		if ( ( emptySpace >= maxLowerLimit ) && ( x == 0 ) ) {
+		
+		/*if ( ( emptySpace >= maxLowerLimit ) && ( x == 0 ) ) {
 			char state[1];
 
 			printf("Buffer < maximum lowerlimit. Mengirim XON.\n");
@@ -208,17 +229,12 @@ static Byte *q_get(int sockfd, QTYPE *queue) {
 
 			return NULL;
 
-		} else {
+		} else {*/
 
-			consumed[0] = Del(queue);
-			
-			while ( !(consumed[0] >= 32 || consumed[0] == 13 || consumed[0] == 10) && EmptySpace(*queue) > 0 ) {
-				consumed[0] = Del(queue);
-			}
-
+			consumed = (*queue).Del();
 			return consumed;
 
-		}
+		//}
 	} else {
 		/* Nothing in the queue */
 		return NULL;

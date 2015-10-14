@@ -1,6 +1,9 @@
 /*
 * File : dcomm.h
 */
+#include <string>
+using namespace std;
+
 #ifndef _DCOMM_H_
 
 #define _DCOMM_H_
@@ -8,46 +11,111 @@
 /* XON/XOFF protocol */
 #define XON (0x11)
 #define XOFF (0x13)
+
 /* Const */
-#define BYTESIZE 256 /* The maximum value of a byte */
-#define MAXLEN 1024 /* Maximum messages length */
+#define SOH 1
+#define STX 2
+#define ETX 3
+#define EOT 4
+#define ACK 6
+#define NAK 15
+
+/* Message */
+#define MsgLen 5
+#define MaxFrame 50
+#define MaxFrameLength 50
+#define MaxResponseLength 40
+#define WindowSize 5
+#define IntLen 5
 
 typedef unsigned char Byte;
-typedef struct QTYPE
-{
-	unsigned int count;
-	unsigned int front;
-	unsigned int rear;
-	unsigned int maxsize;
-	Byte *data;
-} QTYPE;
+class QTYPE {
+private:
+	int count;
+	int front;
+	int rear;
+	int maxsize;
+	string *data;
 
-bool IsFull(QTYPE Q);
-int EmptySpace(QTYPE Q);
-void CreateQueue(QTYPE *Q, unsigned int size);
-void Add(QTYPE *Q, Byte b);
-Byte Del(QTYPE *Q);
-void ViewContent(QTYPE *Q);
+public:
+	QTYPE();
+	QTYPE(int size);
+	bool IsFull();
+	int EmptySpace();
+	void Add(char* b);
+	char* Del();
+	void ViewContent();
+};
 
-typedef struct Frame
-{
+
+class Frame {
+private:
 	int number;
-	char *message;
-	char *checksum;
+	string message;
+	int checksum;
 	int length;
+	string compiled;
 	
-} Frame;
+public:
+	Frame();
+	Frame(const Frame &F);
+	~Frame();
+	void SetNumber (int i);
+	void SetMessage (char* msg);
+	void SetChecksum (char* checkString);
+	void SetLength (int l);
+	string GetMessage ();
+	int GetNumber ();
+	int GetLength ();
+	int GetChecksum ();
+	string GetCompiled();
+	void GetDecompiled (char* frame);
+};
 
-void CreateFrame (Frame *F);
-void SetNumber (Frame *F, int i);
-void SetMessage (Frame *F, char* msg);
-void SetChecksum (Frame *F);
-void SetLength (Frame *F, int l);
-int GetNumber (Frame F);
-char* GetMessage (Frame F);
-char* GetChecksum (Frame F);
-int GetLength (Frame F);
-char* CompileFrame (Frame F);
+class Response {
+private:
+	int number;
+	char type;
+	int checksum;
+	string compiled;
+
+public:
+	Response();
+	void SetNumber(int i);
+	void SetType(char c);
+	void SetChecksum(int c);
+	int GetChecksum ();
+	int GetNumber();
+	char GetType();
+	string GetCompiled();
+	void GetDecompiled(char* frame);
+};
+
+class Window {
+private:
+	Frame *Frames;
+	int *ackStatus;
+	int totalFrames;
+	int start;
+	int size;
+	int pointer;
+	int length;
+
+public:
+	Window();
+	~Window();
+	void insertFrame(Frame F, int i);
+	Frame getCurrentFrame();
+	int getPointer();
+	void slideWindow();
+	void nextSlot();
+	void setACK(int i);
+	int isEnd();
+};
+
+
+char* StringToChars (string S);
+int getIntLength(int i);
 
 #endif
 
