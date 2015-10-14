@@ -142,18 +142,20 @@ void* threadParent(void *arg) {
 
 	while ( !W.isEnd() ) {
 
-		string temp = ((W.getCurrentFrame()).GetCompiled());
+		if ( W.getACK(W.getPointer()) != 1 ) {
+			string temp = ((W.getCurrentFrame()).GetCompiled());
 
-		sprintf(bufs, "%s", temp.c_str());
-		if (sendto(sockfd, bufs, MaxFrameLength, 0, (struct sockaddr *)&targetAddr, addrLen)==-1) {
-			printf("err: sendto\n");	
-		} else {			
-			printf("Mengirim: %s\n", bufs);
+			sprintf(bufs, "%s", temp.c_str());
+			if (sendto(sockfd, bufs, MaxFrameLength, 0, (struct sockaddr *)&targetAddr, addrLen)==-1) {
+				printf("err: sendto\n");	
+			} else {			
+				printf("Mengirim: %s\n", bufs);
+			}
 		}
 
 		//W.setACK(W.getPointer());
-		W.nextSlot();
 		W.slideWindow();
+		W.nextSlot();
 		usleep(DELAY * 1000 * 3);
 
 	}

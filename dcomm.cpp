@@ -243,6 +243,10 @@ Frame Window::getCurrentFrame() {
 	return (Frames[pointer]);
 }
 
+int Window::getACK(int i) {
+	return ackStatus[i];
+}
+
 void Window::setACK(int i) {
 	ackStatus[i] = 1;
 }
@@ -254,9 +258,11 @@ int Window::getPointer() {
 void Window::nextSlot() {
 	++pointer;
 
-	if ( (pointer < start) || (pointer > start + size) ) {
+	if ( (pointer < start) || (pointer >= start + size) ) {
 		pointer = start;
+		cout << "invalid pointer p:" << pointer << endl;
 	}
+
 }
 
 void Window::slideWindow() {
