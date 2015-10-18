@@ -14,7 +14,7 @@
 
 #include "dcomm.h"
 /* Delay to adjust speed of sending bytes */
-#define DELAY 1000
+#define DELAY 5000
 
 /* Socket */
 int sockfd; // listen on sock_fd
@@ -119,6 +119,7 @@ void createFrames() {
 		}
 	}
 
+	/* Kalau ga pas 5 huruf */
 	if ( counter != 0 ) {
 		for ( int i = counter; i < MsgLen; i++ ) {
 			// Maybe fix this?
@@ -131,13 +132,24 @@ void createFrames() {
 		++idx;		
 	}
 
+	// End Of Frame
+	temp[0] = 26;
+
+	for ( int i = 1; i < MsgLen; i++ ) {
+		temp[i] = ' ';
+	}
+
+	F[idx] = new Frame;
+	F[idx]->SetMessage(temp); 
+	F[idx]->SetNumber(idx);
+	++idx;	 
+
 	totalFrame = idx;
 
 }
 
 void* threadParent(void *arg) {
 	/* Parent Thread */
-
 	int c, i = 0, counter = 0;
 
 	while ( !W.isEnd() ) {
@@ -149,14 +161,13 @@ void* threadParent(void *arg) {
 			if (sendto(sockfd, bufs, MaxFrameLength, 0, (struct sockaddr *)&targetAddr, addrLen)==-1) {
 				printf("err: sendto\n");	
 			} else {			
-				printf("Mengirim: %s\n", bufs);
+				printf("Mengirim Frame %d \n", W.getPointer());
 			}
 		}
 
-		//W.setACK(W.getPointer());
 		W.slideWindow();
 		W.nextSlot();
-		usleep(DELAY * 1000 * 3);
+		usleep((DELAY * 1000)/WindowSize);
 
 	}
 

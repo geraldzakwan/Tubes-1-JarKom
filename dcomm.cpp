@@ -92,6 +92,10 @@ void Frame::SetMessage (char* msg) {
 }
 
 void Frame::SetChecksum (char* checkString) {
+	this->checksum = GenerateChecksum(checkString);
+}
+
+int Frame::GenerateChecksum(char* checkString) {
 	int bitSum = 0, x = 0, r = 0;
 	int bitTest, bitHeader, bitBody, checkSum;
 
@@ -115,7 +119,7 @@ void Frame::SetChecksum (char* checkString) {
 
 	checkSum = ~(bitBody + (bitSum >> (x - 4))) & 0x000000ff;
 
-	this->checksum = checkSum;
+	return checkSum;
 }
 
 void Frame::SetLength (int l) {
@@ -260,7 +264,6 @@ void Window::nextSlot() {
 
 	if ( (pointer < start) || (pointer >= start + size) ) {
 		pointer = start;
-		cout << "invalid pointer p:" << pointer << endl;
 	}
 
 }
@@ -269,11 +272,18 @@ void Window::slideWindow() {
 	if ( ( start + size ) <= ( length ) ) {
 		while ( ackStatus[start] == 1 ) {
 			// Geser Window
-			cout << "Geser" << endl;
 			++start;
 			
+			cout << "Geser ke pointer ke-" << start << endl;
 		}
 	}
+}
+
+void Window::iterateFrames() {
+	for ( int i = 0; i <= length; i++ ) {
+		cout << (Frames[i]).GetMessage();
+	}
+	cout << endl;
 }
 
 int Window::isEnd() {

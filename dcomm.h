@@ -22,7 +22,7 @@ using namespace std;
 
 /* Message */
 #define MsgLen 5
-#define MaxFrame 50
+#define MaxFrame 250
 #define MaxFrameLength 50
 #define MaxResponseLength 40
 #define WindowSize 5
@@ -70,6 +70,7 @@ public:
 	int GetChecksum ();
 	string GetCompiled();
 	void GetDecompiled (char* frame);
+	int GenerateChecksum(char* checkString);
 };
 
 class Response {
@@ -111,6 +112,7 @@ public:
 	void slideWindow();
 	void nextSlot();
 	void setACK(int i);
+	void iterateFrames();
 	int isEnd();
 };
 
@@ -119,12 +121,3 @@ char* StringToChars (string S);
 int getIntLength(int i);
 
 #endif
-
-
-
-
-
-
-
-
-
