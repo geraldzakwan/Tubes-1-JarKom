@@ -108,6 +108,7 @@ public:
 	void insertFrame(Frame F, int i);
 	Frame getCurrentFrame();
 	Frame getFrame(int FNum);
+	int getLength();
 	int getPointer();
 	int getACK(int i);
 	void slideWindow();

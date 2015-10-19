@@ -19,6 +19,7 @@
 #define RXQSIZE 8
 
 int parentExit = 0;
+int getEOF = 0;
 
 /* Limits */
 int minUpperLimit = 2; /* To Send XOFF */
@@ -114,22 +115,20 @@ void* threadParent(void *arg) {
 	
 	/* Ketika belum diterima End Of Frame, 
 	   teruskan listening untuk penerimaan byte */
-	while (parentExit == 0) {	
+	while ( (parentExit != 1) ) {	
 		chck = rcvchar(sockfd, &buffer);
 		if ( chck != NULL ) {
 			Frame F;
 			F.GetDecompiled(chck);
 
 			if ( (F.GetMessage()).at(0) != 26 ) {
-				printf("Menerima Frame-%d\n",F.GetNumber());
-				++receivedByte;				
+				printf("Menerima Frame ke-%d\n", F.GetNumber());
 			} else {
 				printf("EOF diterima\n");
-				parentExit = 1;
-			}
-		}
+				getEOF = F.GetNumber();
+			}		
+		} 
 	}
-	Rw.iterateFrames();
 
 	printf("Exiting Child\n");
 	return NULL;
@@ -143,6 +142,9 @@ void* threadChild(void *arg) {
 	int start = 0;
 	bool canBeConsumed = false;
 	Frame Ftemp[100];
+	int temp[100];
+	int tempLength = 0;
+
 	/* Sampai program diakhiri, konsumsi terus byte yang ada pada buffer*/
 	while (parentExit != 1) {	
 		chck = q_get(sockfd, &buffer);
@@ -158,17 +160,25 @@ void* threadChild(void *arg) {
 			if ( F.GenerateChecksum(const_cast<char*>(((F.GetMessage()).c_str()))) != F.GetChecksum() ) {
 				printf("Invalid Checksum. Send NAK.\n");
 				R.SetType(NAK);
+
+				--receivedByte;
 			} else {
 				// Randomizing ACK and NAK Response (DEBUG ONLY)
 				if ((rand() % 5) < 3) {
 					R.SetType(ACK);	
 				} else {
 					R.SetType(NAK);
+				
+					--receivedByte;
 				}
 			}
 
-			int temp[100];
 			int num = R.GetNumber();
+			
+			if (tempLength < ( R.GetNumber() + 1 )) {
+				tempLength = R.GetNumber() + 1;
+			}
+
 			if (R.GetType() == ACK)
 			{
 				if (num < i)
@@ -179,6 +189,7 @@ void* threadChild(void *arg) {
 				else {
 					temp[i] = i;
 					Ftemp[i] = F;
+					if ( i > 0 ) { length++; }
 				}
 			}	
 			else {
@@ -189,29 +200,34 @@ void* threadChild(void *arg) {
 					temp[i] = -1;
 			}
 
-			if (cekBuffer(temp,start,length))
-			{
-				for (int j = start; j <= length; j++)
-				{
-					Rw.insertFrame(Ftemp[j], j);
-					cout << "Mengkonsumsi frame ke-" << j << ": [" << Rw.getFrame(j).GetMessage() << "] Mencoba mengirim ACK" << endl;
-					
-					++consumedByte;
-				}
-				start++;
-				length++;
+			int j = Rw.getLength();
+
+			while ( ( temp[j] != -1 ) && ( j < tempLength ) ) {
+
+				Rw.insertFrame(Ftemp[j], j);
+				cout << "Mengkonsumsi frame ke-" << j << " [" << Rw.getFrame(j).GetMessage() << "] Mencoba mengirim ACK" << endl;
+				
+				++consumedByte;
+
+				++j;
 			}
 			i++;
+
 
 			sprintf(res, "%s", (R.GetCompiled()).c_str());
 			if (sendto(sockfd, res, MaxResponseLength, 0, (struct sockaddr *)&targetAddr, addrLen) == -1) {
 				perror("sendto");
 			}
 
+			if ( ( getEOF != 0 ) && ( (getEOF + 1) == consumedByte ) ) {
+				parentExit = 1;
+			}
+
 		}
 		
 	}
 
+	Rw.iterateFrames();
 	printf("Exiting Parent\n");
 	return NULL;
 }

@@ -251,6 +251,10 @@ Frame Window::getFrame(int FNum) {
 	return (Frames[FNum]);
 }
 
+int Window::getLength() {
+	return length;
+}
+
 int Window::getACK(int i) {
 	return ackStatus[i];
 }
@@ -273,13 +277,13 @@ void Window::nextSlot() {
 }
 
 void Window::slideWindow() {
-	if ( ( start + size ) <= ( length ) ) {
-		while ( ackStatus[start] == 1 ) {
+	//cout << "start+size " << start + size << "length " << length << endl;
+	while ( ( ackStatus[start] == 1 ) && ( ( start + size ) < ( length ) ) ) {
 			// Geser Window
 			++start;
 			
 			cout << "Geser ke pointer ke-" << start << endl;
-		}
+		
 	}
 }
 
