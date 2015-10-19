@@ -107,6 +107,7 @@ public:
 	~Window();
 	void insertFrame(Frame F, int i);
 	Frame getCurrentFrame();
+	Frame getFrame(int FNum);
 	int getPointer();
 	int getACK(int i);
 	void slideWindow();
@@ -115,7 +116,6 @@ public:
 	void iterateFrames();
 	int isEnd();
 };
-
 
 char* StringToChars (string S);
 int getIntLength(int i);

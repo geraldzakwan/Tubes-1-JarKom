@@ -247,6 +247,10 @@ Frame Window::getCurrentFrame() {
 	return (Frames[pointer]);
 }
 
+Frame Window::getFrame(int FNum) {
+	return (Frames[FNum]);
+}
+
 int Window::getACK(int i) {
 	return ackStatus[i];
 }

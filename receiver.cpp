@@ -10,6 +10,7 @@
 #include <sys/wait.h>
 #include <sys/mman.h>
 #include <pthread.h>
+#include <iostream>
 
 #include "dcomm.h"
 /* Delay to adjust speed of consuming buffer, in milliseconds */
@@ -47,6 +48,7 @@ static char* rcvchar(int sockfd, QTYPE *queue);
 static char* q_get(int sockfd, QTYPE *queue);
 void* threadParent(void *arg);
 void* threadChild(void *arg);
+bool cekBuffer(int arr[], int start, int length);
 
 /* Sliding Window Protocol */
 Response R;
@@ -112,14 +114,14 @@ void* threadParent(void *arg) {
 	
 	/* Ketika belum diterima End Of Frame, 
 	   teruskan listening untuk penerimaan byte */
-	while ( (parentExit == 0) ) {	
+	while (parentExit == 0) {	
 		chck = rcvchar(sockfd, &buffer);
 		if ( chck != NULL ) {
 			Frame F;
 			F.GetDecompiled(chck);
 
 			if ( (F.GetMessage()).at(0) != 26 ) {
-				printf("Menerima Frame\n");
+				printf("Menerima Frame-%d\n",F.GetNumber());
 				++receivedByte;				
 			} else {
 				printf("EOF diterima\n");
@@ -136,9 +138,13 @@ void* threadParent(void *arg) {
 void* threadChild(void *arg) {
 	/* Child Thread */
 	char* chck;
-
+	int i = 0;
+	int length = 0;
+	int start = 0;
+	bool canBeConsumed = false;
+	Frame Ftemp[100];
 	/* Sampai program diakhiri, konsumsi terus byte yang ada pada buffer*/
-	while ( (parentExit != 1) ) {	
+	while (parentExit != 1) {	
 		chck = q_get(sockfd, &buffer);
 		if ( chck != NULL ) {
 			Frame F;
@@ -154,16 +160,48 @@ void* threadChild(void *arg) {
 				R.SetType(NAK);
 			} else {
 				// Randomizing ACK and NAK Response (DEBUG ONLY)
-				//if ( (rand() % 5) < 3 ) {
-					R.SetType(ACK);
-					Rw.insertFrame(F, F.GetNumber());
-
-					printf("Mengkonsumsi [ %s ] Mencoba mengirim ACK\n", (F.GetMessage()).c_str());
-					++consumedByte;
-				//} else {
-				//	R.SetType(NAK);
-				//}
+				if ((rand() % 5) < 3) {
+					R.SetType(ACK);	
+				} else {
+					R.SetType(NAK);
+				}
 			}
+
+			int temp[100];
+			int num = R.GetNumber();
+			if (R.GetType() == ACK)
+			{
+				if (num < i)
+				{
+					temp[num] = num;
+					Ftemp[num] = F;
+				}
+				else {
+					temp[i] = i;
+					Ftemp[i] = F;
+				}
+			}	
+			else {
+				//NAK
+				if (num < i)
+					temp[num] = -1;
+				else
+					temp[i] = -1;
+			}
+
+			if (cekBuffer(temp,start,length))
+			{
+				for (int j = start; j <= length; j++)
+				{
+					Rw.insertFrame(Ftemp[j], j);
+					cout << "Mengkonsumsi frame ke-" << j << ": [" << Rw.getFrame(j).GetMessage() << "] Mencoba mengirim ACK" << endl;
+					
+					++consumedByte;
+				}
+				start++;
+				length++;
+			}
+			i++;
 
 			sprintf(res, "%s", (R.GetCompiled()).c_str());
 			if (sendto(sockfd, res, MaxResponseLength, 0, (struct sockaddr *)&targetAddr, addrLen) == -1) {
@@ -210,4 +248,16 @@ static char* q_get(int sockfd, QTYPE *queue) {
 		return NULL;
 	}
 
+}
+
+bool cekBuffer(int arr[], int start, int length)
+{
+	bool hasil = true;
+	for (int i = start; i <= length; i++)
+	{
+		if (arr[i] == -1)
+			hasil = false;
+	}
+
+	return hasil;
 }
