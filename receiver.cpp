@@ -154,15 +154,15 @@ void* threadChild(void *arg) {
 				R.SetType(NAK);
 			} else {
 				// Randomizing ACK and NAK Response (DEBUG ONLY)
-				if ( (rand() % 5) < 3 ) {
+				//if ( (rand() % 5) < 3 ) {
 					R.SetType(ACK);
 					Rw.insertFrame(F, F.GetNumber());
 
 					printf("Mengkonsumsi [ %s ] Mencoba mengirim ACK\n", (F.GetMessage()).c_str());
 					++consumedByte;
-				} else {
-					R.SetType(NAK);
-				}
+				//} else {
+				//	R.SetType(NAK);
+				//}
 			}
 
 			sprintf(res, "%s", (R.GetCompiled()).c_str());
