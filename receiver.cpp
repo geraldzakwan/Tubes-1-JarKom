@@ -112,7 +112,7 @@ void* threadParent(void *arg) {
 	
 	/* Ketika belum diterima End Of Frame, 
 	   teruskan listening untuk penerimaan byte */
-	while ( (parentExit == 0) && (receivedByte != consumedByte) ) {	
+	while ( (parentExit == 0) ) {	
 		chck = rcvchar(sockfd, &buffer);
 		if ( chck != NULL ) {
 			Frame F;
