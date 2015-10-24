@@ -172,7 +172,7 @@ void createFramesFromUser(){
 	}
 	
 	/*Kalau ga pas 5 huruf */
-	/*if ( (counter+MsgLen) > file.length()) {
+	if ( (counter+MsgLen) > file.length()) {
 		//temp=file.substr(counter, file.length()-counter).c_str();
 		string word= file.substr(counter, file.length()-counter);
 		strcpy(temp,word.c_str());
@@ -189,7 +189,7 @@ void createFramesFromUser(){
 		F[idx]->SetMessage(temp); 
 		F[idx]->SetNumber(idx); 
 		++idx;		
-	}*/
+	}
 	
 	// End Of Frame
 	temp[0] = 26;

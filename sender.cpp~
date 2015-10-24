@@ -117,7 +117,7 @@ void createFrames() {
 			F[idx] = new Frame;
 			F[idx]->SetMessage(temp); 
 			F[idx]->SetNumber(idx); 
-			F[idx]->SetChecksum((F[idx]->GetCompiledWithoutChecksum()).c_str());
+			//F[idx]->SetChecksum((F[idx]->GetCompiledWithoutChecksum()).c_str());
 			
 			counter = 0;
 			++idx;
@@ -134,7 +134,7 @@ void createFrames() {
 		F[idx] = new Frame;
 		F[idx]->SetMessage(temp); 
 		F[idx]->SetNumber(idx); 
-			F[idx]->SetChecksum((F[idx]->GetCompiledWithoutChecksum()).c_str());
+			//F[idx]->SetChecksum((F[idx]->GetCompiledWithoutChecksum()).c_str());
 		++idx;		
 	}
 
@@ -165,7 +165,7 @@ void createFramesFromUser(){
 		F[idx] = new Frame;
 		F[idx]->SetMessage(temp); 
 		F[idx]->SetNumber(idx); 
-			F[idx]->SetChecksum((F[idx]->GetCompiledWithoutChecksum()).c_str());
+			//F[idx]->SetChecksum((F[idx]->GetCompiledWithoutChecksum()).c_str());
 		counter =counter + MsgLen;
 		++idx;
 		cout << "  " <<temp;

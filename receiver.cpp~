@@ -158,18 +158,19 @@ void* threadChild(void *arg) {
 
 			// Checks checksum
 			cout<<"awal";
-			for(i=0;i<strlen(chck);i++){
+			for(i=0;i<=strlen(chck);i++){
 				cout<<"  "<<chck[i];
 			}
 			cout<<"end";
 			
 			cout<<"\nChecksum= "<<F.GenerateChecksumCRC(chck) ;
 			cout<<"awal";
-			for(i=0;i<strlen(chck);i++){
+			for(i=0;i<=strlen(chck);i++){
 				cout<<"  "<<chck[i];
 			}
 			cout<<"end";
-			cout<<"\nGetCheckSum = "<<F.GenerateChecksumCRC(chck) ;
+			cout<<"\nGetCheckSum = "<<F.GetChecksum () ;
+			cout<<"\nCheckSum = "<<F.GenerateChecksumCRC(chck) ;
 			if ( F.GenerateChecksumCRC(chck) != F.GetChecksum () ) {
 				printf("Invalid Checksum. Send NAK.\n");
 				R.SetType(NAK);

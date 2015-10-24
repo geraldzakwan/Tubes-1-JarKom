@@ -204,7 +204,6 @@ string Frame::GetCompiled () {
 	ret[1 + n + MsgLen + 1] = ETX;
 
 	this->checksum = GenerateChecksumCRC(ret);
-	cout<<"Ceksum:"<< GenerateChecksumCRC(ret);
 	m= getIntLength(GetChecksum());
 	sprintf(chk, "%d", GetChecksum());
 	

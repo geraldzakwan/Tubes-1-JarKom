@@ -219,38 +219,6 @@ string Frame::GetCompiled () {
 	return compiled;
 }
 
-string Frame::GetCompiledWithoutChecksum () {
-	int n = getIntLength(GetNumber());
-	int m = getIntLength(GetChecksum());
-	int size = 1 + n + 1 + MsgLen + 1 + 1 + 1;
-	char ret[size]; 
-	char num[n];
-	char chk[m];
-
-	ret[0] = SOH;
-
-	sprintf(num, "%d", GetNumber());	
-	sprintf(chk, "%d", GetChecksum());
-
-	for (int i = 0; i < n; i++) {
-		ret[i+1] = num[i];
-	}
-
-	ret[1 + n] = STX;
-
-	for (int i = 0; i < MsgLen; i++) {
-		ret[1 + n + i + 1] = (GetMessage()).at(i);	
-	} 
-
-	ret[1 + n + MsgLen + 1] = ETX;
-
-	ret[1 + n + MsgLen + 2] = '\0';
-
-	string temp(ret);
-	compiled = temp;
-
-	return compiled;
-}
 
 void Frame::GetDecompiled (char* frame) {
 	if ( frame[0] == SOH ) {
