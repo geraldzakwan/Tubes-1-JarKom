@@ -180,7 +180,7 @@ int Frame::GetChecksum () {
 
 string Frame::GetCompiled () {
 	int n = getIntLength(GetNumber());
-	int m = getIntLength(GetChecksum());
+	int m;
 	int size = 1 + n + 1 + MsgLen + 1 + 1 + 1;
 	char ret[size]; 
 	char num[n];
@@ -189,7 +189,7 @@ string Frame::GetCompiled () {
 	ret[0] = SOH;
 
 	sprintf(num, "%d", GetNumber());	
-	sprintf(chk, "%d", GetChecksum());
+	
 
 	for (int i = 0; i < n; i++) {
 		ret[i+1] = num[i];
@@ -203,6 +203,10 @@ string Frame::GetCompiled () {
 
 	ret[1 + n + MsgLen + 1] = ETX;
 
+	this->checksum = GenerateChecksumCRC(ret);
+	m= getIntLength(GetChecksum());
+	sprintf(chk, "%d", GetChecksum());
+	
 	for (int i = 0; i < m; i++) {
 		ret[1 + n + MsgLen + 2 + i] = chk[i];
 	}
