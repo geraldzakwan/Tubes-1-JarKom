@@ -166,13 +166,13 @@ void* threadChild(void *arg) {
 				--receivedByte;
 			} else {
 				// Randomizing ACK and NAK Response (DEBUG ONLY)
-				//if ((rand() % 5) < 3) {
+				if ((rand() % 5) < 3) {
 					R.SetType(ACK);	
-				/*} else {
-					R.SetType(ACK);
+				} else {
+					R.SetType(NAK);
 				
 					--receivedByte;
-				}*/
+				}
 			}
 
 			int num = R.GetNumber();

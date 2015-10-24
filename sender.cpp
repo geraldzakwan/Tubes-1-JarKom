@@ -253,7 +253,7 @@ void* threadChild(void *arg) {
 			if (sendto(sockfd, bufs, MaxFrameLength, 0, (struct sockaddr *)&targetAddr, addrLen)==-1) {
 				printf("err: sendto\n");	
 			} else {			
-				printf("Mengirim Frame %d [NAK]\n", W.getPointer());
+				printf("Mengirim Frame %d [NAK]\n", R.GetNumber());
 			}	
 		}
 
