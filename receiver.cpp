@@ -166,13 +166,13 @@ void* threadChild(void *arg) {
 				--receivedByte;
 			} else {
 				// Randomizing ACK and NAK Response (DEBUG ONLY)
-				if ((rand() % 5) < 3) {
+				//if ((rand() % 5) < 3) {
 					R.SetType(ACK);	
-				} else {
+				/*} else {
 					R.SetType(ACK);
 				
 					--receivedByte;
-				}
+				}*/
 			}
 
 			int num = R.GetNumber();
@@ -210,7 +210,7 @@ void* threadChild(void *arg) {
 				cout << "Mengkonsumsi frame ke-" << j << " [" << Rw.getFrame(j).GetMessage() << "] Mencoba mengirim ACK" << endl;
 				
 				++consumedByte;
-
+				Rw.slideWindow();
 				++j;
 			}
 			i++;

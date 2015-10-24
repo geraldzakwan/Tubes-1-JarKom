@@ -179,7 +179,6 @@ void createFramesFromUser(){
 			temp[i] = ' ';
 		}
 
-		cout << temp;
 		F[idx] = new Frame;
 		F[idx]->SetMessage(temp); 
 		F[idx]->SetNumber(idx); 
@@ -225,8 +224,8 @@ void* threadParent(void *arg) {
 
 	}
 
-	printf("Exiting Parent\n");
 	parentExit = 1;
+	printf("Exiting Parent\n");
 
 	return NULL;
 }
@@ -246,7 +245,16 @@ void* threadChild(void *arg) {
 			W.setACK(R.GetNumber());
 			printf("ACK received from Frame %d\n", R.GetNumber());
 		} else {
-			printf("NAK received from Frame %d\n", R.GetNumber());		
+			printf("NAK received from Frame %d\n", R.GetNumber());	
+
+			string temp = ((W.getFrame(R.GetNumber())).GetCompiled());
+
+			sprintf(bufs, "%s", temp.c_str());
+			if (sendto(sockfd, bufs, MaxFrameLength, 0, (struct sockaddr *)&targetAddr, addrLen)==-1) {
+				printf("err: sendto\n");	
+			} else {			
+				printf("Mengirim Frame %d [NAK]\n", W.getPointer());
+			}	
 		}
 
 	}
