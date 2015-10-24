@@ -167,7 +167,6 @@ void createFramesFromUser(){
 
 		counter = counter + MsgLen;
 		++idx;
-		cout << "  " << temp;
 	}
 	
 	/*Kalau ga pas 5 huruf */
@@ -175,10 +174,8 @@ void createFramesFromUser(){
 		string word= file.substr(counter, file.length()-counter);
 		strcpy(temp,word.c_str());
 		
-		cout << "TEMP: " << temp << " \n";
 		for ( int i = file.length() - counter; i <= MsgLen; i++ ) {
 			// Maybe fix this?
-			cout<< "\nTemp ke- "<< i <<endl;
 			temp[i] = ' ';
 		}
 
