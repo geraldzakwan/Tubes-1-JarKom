@@ -88,7 +88,6 @@ void Frame::SetNumber (int i) {
 void Frame::SetMessage (char* msg) {
 	string temp(msg);
 	message = temp;
-	
 }
 
 void Frame::SetChecksum (char* checkString) {

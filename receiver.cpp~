@@ -170,7 +170,7 @@ void* threadChild(void *arg) {
 			}
 			cout<<"end";
 			cout<<"\nGetCheckSum = "<<F.GenerateChecksumCRC(chck) ;
-			if ( F.GenerateChecksumCRC(chck) != F.GetChecksum () ) {
+			if ( F.GenerateChecksumCRC(chck) != F.GenerateChecksumCRC(chck) ) {
 				printf("Invalid Checksum. Send NAK.\n");
 				R.SetType(NAK);
 

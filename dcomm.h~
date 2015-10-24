@@ -73,7 +73,6 @@ public:
 	int GenerateChecksum(char* checkString);
 	int GenerateChecksumCRC(char* checkString);
 	void printbit(long long a);
-	string GetCompiledWithoutChecksum ();
 };
 
 class Response {
