@@ -117,7 +117,6 @@ void createFrames() {
 			F[idx] = new Frame;
 			F[idx]->SetMessage(temp); 
 			F[idx]->SetNumber(idx); 
-			//F[idx]->SetChecksum((F[idx]->GetCompiledWithoutChecksum()).c_str());
 			
 			counter = 0;
 			++idx;
@@ -134,7 +133,6 @@ void createFrames() {
 		F[idx] = new Frame;
 		F[idx]->SetMessage(temp); 
 		F[idx]->SetNumber(idx); 
-			//F[idx]->SetChecksum((F[idx]->GetCompiledWithoutChecksum()).c_str());
 		++idx;		
 	}
 
@@ -159,31 +157,31 @@ void createFramesFromUser(){
 	string file;
 	char temp[(MsgLen+1)];
 	getline(cin,file); 
+
 	while((counter+MsgLen) <= file.length()){
 		strcpy(temp,file.substr(counter, MsgLen).c_str());
 		temp[MsgLen] = '\0';
 		F[idx] = new Frame;
 		F[idx]->SetMessage(temp); 
 		F[idx]->SetNumber(idx); 
-			//F[idx]->SetChecksum((F[idx]->GetCompiledWithoutChecksum()).c_str());
-		counter =counter + MsgLen;
+
+		counter = counter + MsgLen;
 		++idx;
-		cout << "  " <<temp;
+		cout << "  " << temp;
 	}
 	
 	/*Kalau ga pas 5 huruf */
 	if ( (counter+MsgLen) > file.length()) {
-		//temp=file.substr(counter, file.length()-counter).c_str();
 		string word= file.substr(counter, file.length()-counter);
 		strcpy(temp,word.c_str());
 		
-		cout << "TEMP: "<<temp<< " \n";
-		for ( int i = (counter+MsgLen)-file.length()+1; i < MsgLen; i++ ) {
+		cout << "TEMP: " << temp << " \n";
+		for ( int i = file.length() - counter; i <= MsgLen; i++ ) {
 			// Maybe fix this?
 			cout<< "\nTemp ke- "<< i <<endl;
 			temp[i] = ' ';
 		}
-		//temp[MsgLen] = '\0';
+
 		cout << temp;
 		F[idx] = new Frame;
 		F[idx]->SetMessage(temp); 
