@@ -205,7 +205,7 @@ void* threadParent(void *arg) {
 	/* Parent Thread */
 	int c, i = 0, counter = 0;
 
-	while ( !W.isEnd() ) {
+	while ( !W.isEnd() || !W.isAllACK() ) {
 
 		if ( W.getACK(W.getPointer()) != 1 ) {
 			string temp = ((W.getCurrentFrame()).GetCompiled());

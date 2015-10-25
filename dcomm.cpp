@@ -311,7 +311,7 @@ int Window::getPointer() {
 void Window::nextSlot() {
 	++pointer;
 
-	if ( (pointer < start) || (pointer >= start + size) ) {
+	if ( (pointer < start) || (pointer >= start + size) || (pointer >= length) ) {
 		pointer = start;
 	}
 
@@ -338,6 +338,17 @@ int Window::isEnd() {
 	return ( pointer == length ); 
 }
 
+int Window::isAllACK() {
+	int ret = 1;
+
+	for (int i = 0; i < length; i++) {
+		if (ackStatus[i] != 1) {
+			ret = 0;
+		}
+	}
+
+	return ( ret ); 
+}
 
 /* RESPONSE PROCEDURE AND FUNCTIONS */
 
