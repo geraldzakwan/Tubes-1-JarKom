@@ -205,7 +205,7 @@ void* threadParent(void *arg) {
 	/* Parent Thread */
 	int c, i = 0, counter = 0;
 
-	while ( !W.isEnd() ) {
+	while ( !W.isEnd() || !W.isAllACK() ) {
 
 		if ( W.getACK(W.getPointer()) != 1 ) {
 			string temp = ((W.getCurrentFrame()).GetCompiled());
@@ -255,6 +255,7 @@ void* threadChild(void *arg) {
 			} else {			
 				printf("Mengirim Frame %d [NAK]\n", R.GetNumber());
 			}	
+			usleep(200);
 		}
 
 	}

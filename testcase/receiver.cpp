@@ -157,20 +157,15 @@ void* threadChild(void *arg) {
 			R.SetChecksum(F.GetChecksum());
 
 			// Checks checksum
+				cout << F.GenerateChecksumCRC(chck) << endl;
+				cout << F.GetChecksum() << endl;
 			if ( F.GenerateChecksumCRC(chck) != F.GetChecksum() ) {
 				printf("Invalid Checksum. Send NAK.\n");
 				R.SetType(NAK);
 
 				--receivedByte;
 			} else {
-				// Randomizing ACK and NAK Response (DEBUG ONLY)
-				if ((rand() % 5) < 3) {
-					R.SetType(ACK);	
-				} else {
-					R.SetType(NAK);
-				
-					--receivedByte;
-				}
+				R.SetType(ACK);	
 			}
 
 			int num = R.GetNumber();

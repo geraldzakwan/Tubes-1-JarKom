@@ -119,6 +119,7 @@ public:
 	void setACK(int i);
 	void iterateFrames();
 	int isEnd();
+	int isAllACK();
 };
 
 char* StringToChars (string S);

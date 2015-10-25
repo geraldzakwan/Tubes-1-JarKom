@@ -87,8 +87,7 @@ void Frame::SetNumber (int i) {
 
 void Frame::SetMessage (char* msg) {
 	string temp(msg);
-	message = temp;
-	
+	message = temp;	
 }
 
 void Frame::SetChecksum (char* checkString) {
@@ -130,12 +129,9 @@ int i;
 }
 int Frame::GenerateChecksumCRC(char* checkString) {
 	unsigned long long dummy= 0;
-	char* temp=checkString;
-	//int bitSum = 0, x = 0, r = 0;
-	//int bitTest, bitHeader, bitBody, checkSum;
-	
+	char* temp=checkString;	
 	unsigned long long seed= 0x131;
-	//temp[strlen(temp)-1]=0;
+
 	int i=0;
 	do{
 		dummy = dummy <<8;
@@ -143,12 +139,7 @@ int Frame::GenerateChecksumCRC(char* checkString) {
 		i++;
 	}while(temp[i]!=ETX);
 	dummy = dummy <<8;
-	/*for ( int i = 0; i < strlen(temp); i++ ) {
-		dummy =dummy << 8;
-		dummy +=  (unsigned long long)  temp[i];
-	}*/
-	//printbit( dummy);
-	//cout<<"\n\n\n";
+
 	for(int i = sizeof(long long)*8; i>8; i--){
 		if((dummy>>(i-1))&1){
 			dummy = dummy ^ (seed<<(i-9));
@@ -212,6 +203,14 @@ string Frame::GetCompiled () {
 	}
 
 	ret[1 + n + MsgLen + m + 2] = '\0';
+
+	/* TESTCASE 01: CHECKSUM ERROR */
+		srand(time(NULL));
+		if ((rand() % 5) < 2) {
+			cout << "hai" << endl;
+			ret[1 + n + 0 + 1] = 'x';
+		}
+	/* *************************** */
 
 	string temp(ret);
 	compiled = temp;
@@ -311,7 +310,7 @@ int Window::getPointer() {
 void Window::nextSlot() {
 	++pointer;
 
-	if ( (pointer < start) || (pointer >= start + size) ) {
+	if ( (pointer < start) || (pointer >= start + size) || (pointer >= length) ) {
 		pointer = start;
 	}
 
@@ -338,6 +337,17 @@ int Window::isEnd() {
 	return ( pointer == length ); 
 }
 
+int Window::isAllACK() {
+	int ret = 1;
+
+	for (int i = 0; i < length; i++) {
+		if (ackStatus[i] != 1) {
+			ret = 0;
+		}
+	}
+
+	return ( ret ); 
+}
 
 /* RESPONSE PROCEDURE AND FUNCTIONS */
 
