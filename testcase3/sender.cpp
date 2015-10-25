@@ -235,9 +235,10 @@ void* threadChild(void *arg) {
 
 	while (parentExit == 0) {
 		/* Listening XON XOFF signal */ 
+		
 			if ( recvfrom(sockfd, res, MaxResponseLength, 0, (struct sockaddr *)&targetAddr, &addrLen) == -1 )
 				perror("recvfrom");
-
+			if((rand()%5 )<3){
 			Response R;
 			R.GetDecompiled(res);
 			if ( R.GetType() == ACK ) {
@@ -254,9 +255,9 @@ void* threadChild(void *arg) {
 				} else {			
 					printf("Mengirim Frame %d [NAK]\n", R.GetNumber());
 				}	
-				usleep(200);
 			}
-
+		}
+		
 	}
 
 	printf("Exiting Child\n");
