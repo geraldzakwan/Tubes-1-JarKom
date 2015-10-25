@@ -145,11 +145,6 @@ void* threadChild(void *arg) {
 	int temp[100];
 	int tempLength = 0;
 
-	//inisialisasi elemen temp dengan -1
-	for (i = 0; i <= 100; i++) {
-		temp[i] = -1;
-	}
-	
 	/* Sampai program diakhiri, konsumsi terus byte yang ada pada buffer*/
 	while (parentExit != 1) {	
 		chck = q_get(sockfd, &buffer);

@@ -111,12 +111,14 @@ int main(int argc, char *argv[]) {
 
 void* threadParent(void *arg) {
 	/* Parent Thread */
-	char* chck;
+	char* chck=NULL;
 	
 	/* Ketika belum diterima End Of Frame, 
 	   teruskan listening untuk penerimaan byte */
 	while ( (parentExit != 1) ) {	
+		
 		chck = rcvchar(sockfd, &buffer);
+		
 		if ( chck != NULL ) {
 			Frame F;
 			F.GetDecompiled(chck);
@@ -127,7 +129,7 @@ void* threadParent(void *arg) {
 				printf("EOF diterima\n");
 				getEOF = F.GetNumber();
 			}		
-		} 
+		} 	
 	}
 
 	printf("Exiting Child\n");
@@ -145,6 +147,7 @@ void* threadChild(void *arg) {
 	int temp[100];
 	int tempLength = 0;
 
+	
 	//inisialisasi elemen temp dengan -1
 	for (i = 0; i <= 100; i++) {
 		temp[i] = -1;
@@ -153,6 +156,7 @@ void* threadChild(void *arg) {
 	/* Sampai program diakhiri, konsumsi terus byte yang ada pada buffer*/
 	while (parentExit != 1) {	
 		chck = q_get(sockfd, &buffer);
+		
 		if ( chck != NULL ) {
 			Frame F;
 			F.GetDecompiled(chck);
@@ -169,14 +173,11 @@ void* threadChild(void *arg) {
 				--receivedByte;
 			} else {
 				// Randomizing ACK and NAK Response (DEBUG ONLY)
-				if ((rand() % 5) < 3) {
-					R.SetType(ACK);	
-				} else {
-					R.SetType(NAK);
 				
-					--receivedByte;
-				}
+					R.SetType(ACK);	
+				
 			}
+			
 
 			int num = R.GetNumber();
 			
@@ -243,10 +244,14 @@ static char* rcvchar(int sockfd, QTYPE *queue) {
 	Return a buffer value.
 	*/
 	recvLen = recvfrom(sockfd, buf, MaxFrameLength, 0, (struct sockaddr *)&targetAddr, &addrLen);
+	if((rand()%5)<3) {
+		(*queue).Add(buf);
 
-	(*queue).Add(buf);
-
-	return buf;
+		return buf;
+	} else {
+		return NULL;
+		
+	} 
 
 }
 
@@ -260,7 +265,6 @@ static char* q_get(int sockfd, QTYPE *queue) {
 		/*
 		Retrieve data from buffer
 		*/
-		
 		consumed = (*queue).Del();
 		return consumed;
 
